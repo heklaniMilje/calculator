@@ -1,12 +1,14 @@
 :root {
     --background-color-light: rgb(164, 185, 194);
     --background-color-dark: rgb(28, 44, 58);
+    --theme-button-color-light: rgb(233, 239, 247);
     --calculator-color-light: rgb(196, 218, 228);
     --calculator-color-dark: rgb(47, 70, 90);
     --footer-color-light: rgba(151, 147, 147, 0.527);
     --display-color-light: white;
     --text-color-light: white;
     --button-color-light: rgb(172, 168, 172);
+    --border-color-white: rgba(212, 206, 206, 0.733);
 }
 
 html {
@@ -29,6 +31,98 @@ body {
     display: flex;
     flex-direction: column;
     background: var(--background-color-light);
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 20px;
+}
+
+/* .theme{
+    width: 100px;
+    height: 40px;
+    border: 1px solid var(--border-color-white);
+    background: var(--calculator-color-light);
+    border-radius: 15px;
+    display: flex;
+    justify-content: flex-start;
+} */
+
+label {
+    width: 100px;
+    height: 40px;
+    position: relative;
+    display: block;
+    background: var(--theme-button-color-light);
+    border-radius: 20px;
+    box-shadow: inset 0px 5px 15px var(--border-color-white), inset 0px -5px 15px var(--border-color-white);
+    cursor: pointer;
+}
+
+label:after {
+    content: "";
+    width: 33px;
+    height: 33px;
+    position: absolute;
+    top: 4px;
+    left: 5px;
+    background: var(--background-color-light);
+    border-radius: 50px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.103);
+}
+
+input {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
+input:checked + label{
+    background: var(--background-color-dark);
+    box-shadow: inset 0px 5px 15px rgba(0, 0, 0, 0.363), inset 0px -5px 15px rgba(0, 0, 0, 0.363);
+
+}
+
+input:checked + label:after{
+    left: 94px;
+    transform: translateX(-100%);
+    background: rgb(62, 63, 104);
+}
+
+label, label:after {
+    transition: 0.3s;
+}
+
+label:active:after {
+    width: 60px;
+}
+
+label svg {
+    position: absolute;
+    height: 75%;
+    z-index: 100;
+}
+
+svg.sun {
+    left: 6px;
+    top: 6px;
+}
+
+svg.moon {
+    left: 63px;
+    top: 6px;
+}
+
+svg.sun > * {
+    fill: #fff;
+    stroke: white;
+}
+
+svg.moon > * {
+    fill: #fff;
+    stroke: white;
 }
 
 .container {
