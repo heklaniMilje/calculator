@@ -3,11 +3,23 @@
     --background-color-dark: rgb(28, 44, 58);
     --theme-button-color-light: rgb(233, 239, 247);
     --calculator-color-light: rgb(196, 218, 228);
-    --calculator-color-dark: rgb(47, 70, 90);
+    --calculator-color-dark: rgb(47, 50, 53);
+    --calculator-border-light: rgba(212, 206, 206, 0.733);
+    --calculator-border-dark: rgb(189, 136, 37);
+    --calculator-shadow-light: rgba(151, 147, 147, 0.527);
+    --calculator-shadow-dark: rgba(226, 178, 88, 0.76);
     --footer-color-light: rgba(151, 147, 147, 0.527);
+    --footer-color-dark: rgb(10, 27, 41);
     --display-color-light: white;
+    --display-color-dark: rgb(19, 34, 48);
+    --display-text-color-light: rgb(110, 110, 110);
+    --display-text-color-dark: rgb(243, 191, 21);
     --text-color-light: white;
+    --text-color-dark: rgb(222, 222, 241);
     --button-color-light: rgb(172, 168, 172);
+    --button-color-dark: rgb(73, 68, 57);
+    --button-border-light: rgb(196, 194, 194);
+    --button-border-dark: rgb(44, 40, 34);
     --border-color-white: rgba(212, 206, 206, 0.733);
 }
 
@@ -31,6 +43,10 @@ body {
     display: flex;
     flex-direction: column;
     background: var(--background-color-light);
+}
+
+body.dark {
+    background: var(--background-color-dark);
 }
 
 header {
@@ -134,9 +150,9 @@ svg.moon > * {
 
 .calculator {
     border: 1px solid rgba(212, 206, 206, 0.733);
-    box-shadow: 0 0 10px 5px rgba(151, 147, 147, 0.527);
+    box-shadow: 0 0 10px 5px var(--calculator-shadow-light);
     padding: 15px;
-    min-width: 300px;
+    width: 300px;
     min-height: 300px;
     background: var(--calculator-color-light);
     display: flex;
@@ -144,10 +160,26 @@ svg.moon > * {
     gap: 10px;
 }
 
+.calculator.dark {
+    box-shadow: 0 0 10px 5px var(--calculator-shadow-dark);
+    background: var(--calculator-color-dark);
+}
+
 .display {
+    padding: 5px;
     height: 30px;
     width: 100%;
     background: var(--display-color-light);
+    color: var(--display-text-color-light);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    overflow: hidden;
+}
+
+.display.dark {
+    background: var(--display-color-dark);
+    color: var(--display-text-color-dark);
 }
 
 .buttons {
@@ -168,12 +200,22 @@ svg.moon > * {
     font-size: 16px;
     font-family: monospace;
     font-weight: bold;
-    border: 1px solid rgb(196, 194, 194);
+    border: 1px solid var(--button-border-light);
     color: var(--text-color-light);
     background: var(--button-color-light);
+}
+
+.button.dark {
+    background: var(--button-color-dark);
+    border: 1px solid var(--button-border-dark);
+    color: var(--text-color-dark);
 }
 
 footer {
     text-align: center;
     background: var(--footer-color-light);
+}
+
+footer.dark {
+    background: var(--footer-color-dark);
 }
