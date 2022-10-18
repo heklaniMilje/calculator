@@ -5,21 +5,38 @@ const calculator = document.querySelector('.calculator');
 const buttons = Array.from(document.querySelectorAll('.button'));
 const footer = document.querySelector('footer');
 const display = document.querySelector('.display');
-const numBtns = Array.from(document.querySelectorAll('.number'));
+const numBtns = Array.from(document.querySelectorAll('button.number'));
+numBtns.push(document.querySelector('.dot'));
+const opBtns = Array.from(document.querySelectorAll('.op'));
 const acBtn = document.querySelector('.delete');
 const delBtn = document.querySelector('.delete-one');
-
+const dotBtn = document.querySelector('.dot');
+const calculateBtn = document.querySelector('.calculate');
 
 let numbers = [];
 let operands = [];
 let number = [];
 let result = 0;
+let floatFlag = false;
 
 
-numBtns.forEach(btn => addEventListener('click', input));
+
+themeChkBox.addEventListener('click', themeChange);
+window.addEventListener('load', handleThemeOnLoad);
+
+numBtns.forEach(btn => btn.addEventListener('click', input));
+opBtns.forEach(btn => btn.addEventListener('click', inputOperations));
 acBtn.addEventListener('click', resetData);
 delBtn.addEventListener('click', deleteOne);
-themeChkBox.addEventListener('click', themeChange);
+calculateBtn.addEventListener('click', calculation);
+
+function handleThemeOnLoad() {
+    themeLabel.classList.add('loaded');
+    setInterval(function () {
+        themeLabel.classList.remove('loaded');
+        themeLabel.classList.add('unloaded');
+    }, 500);
+}
 
 themeCheck();
 
@@ -31,47 +48,29 @@ function themeCheck() {
     }
 }
 
-window.onload = () => {
-    themeLabel.classList.add('loaded');
-    setInterval(function () {
-        themeLabel.classList.remove('loaded');
-        themeLabel.classList.add('unloaded');
-    }, 500);
-}
 
 function deleteOne(e) {
 
     const text = display.textContent;
-    if(text == "")  return;
+    if (text == "") return;
 
-    if(number.length!=0)
-        numbers.push(number.pop());
-    
+    if (number.length != 0)
+        addToNumbers();
 
     const last = text.substr(-1);
-    console.log('last' + last);
- 
+
     if (isNumeric(last)) {
         let num = numbers.pop();
-        console.log('num: ' + num);
+        console.log('Number: ' + num);
 
-        if (isInt(num)) {
-            if (Math.floor(num/10) != 0) {
-                num = Math.floor(num/10);
-                numbers.push(num);
-            }
-        }
-        else{
-            let decimals = num % 1;
-            decimals = Math.floor(decimals/10);
-            numbers.push(num%1 + decimals);
-        }
+        num = removeLastDigit(num);
+        if (!isNaN(num))
+            addToNumbers(num);
     }
-    else if(!/[\s]/.test(last)){
+    else if (/[\+\-\*\/]/.test(last)) {
         operands.pop();
     }
 
-    console.log('numbers: ' + numbers);
     displayDeleteOne();
 }
 
@@ -81,6 +80,7 @@ function themeChange(e) {
     display.classList.toggle('dark');
     buttons.forEach(btn => btn.classList.toggle('dark'));
     footer.classList.toggle('dark');
+
 
     if (Array.from(body.classList).some(el => el == 'dark')) {
         const dark = { isDark: true };
@@ -93,77 +93,67 @@ function themeChange(e) {
     }
 }
 
-function input(e) {
-    if (!Array.from(e.target.classList).some(el => el == 'button')) return;
-    if (Array.from(e.target.classList).some(el => el == 'delete')) return;
-    if (Array.from(e.target.classList).some(el => el == 'delete-one')) return;
-
-    if (!Array.from(e.target.classList).some(el => el == 'number')) {
-
-        if (Array.from(e.target.classList).some(el => el == 'calculate')) {
-            if (number.length != 0) {
-                numbers.push(number.pop());
-            }
-            displayClear();
-            displayShow(calculate());
-            return;
-        }
-
-        const inputValue = e.target.textContent;
-        displayShow(" " + inputValue + " ");
-        if (number.length != 0) {
-            numbers.push(number.pop());
-        }
-
-        operands.push(inputValue);
-
-    }
-    else {
-
-        const inputValue = parseFloat(e.target.textContent);
-        displayShow(inputValue);
-        if (number.length == 0)
-            number.push(inputValue);
-        else {
-            number.push(number.pop() * 10 + inputValue);
-        }
-    }
+function calculation() {
+    // add last written number when = pressed
+    addToNumbers();
+    displayClear();
+    displayShow(calculate());
+    addToNumbers(result);
 }
 
+function inputOperations(e) {
+    const op = e.target.textContent;
+    displayShow(" " + op + " ");
+
+    // add last written number when +-*/ pressed
+    addToNumbers();
+    operands.push(op);
+}
+
+function input(e) {
+    const inputValue = e.target.textContent;
+    displayShow(inputValue);
+
+    if (inputValue == '.')
+        handleFloat();
+    number.length == 0 ? number.push(inputValue)
+        : number.push(number.pop() + inputValue);
+
+}
+
+
+
 function calculate() {
-    if (numbers.length == 1) return numbers.pop();
+
+    if (numbers.length == 0) return "";
+
     let tmp = 0;
 
     while (numbers.length != 1) {
         let op = operands.shift();
-
         switch (op) {
             case '*':
             case '/':
-                if (numbers[1] == 0) {
-                    displayShow("ERROR zero division");
-                }
                 tmp = operate(numbers.shift(), numbers.shift(), op);
                 numbers.unshift(tmp);
-                break
+                break;
             case '+':
             case '-':
                 if (operands.length == 0 || operands[0] == '+' || operands[0] == '-') {
+                    console.log('orvo')
                     tmp = operate(numbers.shift(), numbers.shift(), op);
                     numbers.unshift(tmp);
                 }
                 else {
+                    console.log(numbers[0], op)
                     tmp = operate(numbers.shift(), calculate(), op);
                     numbers.unshift(tmp);
                 }
                 break;
         }
 
-        console.log(numbers);
     }
-
-    let result = numbers.pop();
-    numbers.push(result);
+    result = numbers.shift();
     return result;
 }
 
@@ -184,7 +174,7 @@ function displayShow(value) {
 function displayDeleteOne() {
     const text = display.textContent;
     const newText = text.substring(0, text.length - 1).trim();
-    console.log(newText)
+    console.log(newText);
     displayClear();
     displayShow(newText);
 }
@@ -202,11 +192,16 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
+
+    if (b == 0) {
+        displayShow("ERROR zero division");
+        return;
+    }
+
     return a / b;
 }
 
 function operate(a, b, operator) {
-    console.log('helo');
     switch (operator) {
         case '+':
             return add(a, b);
@@ -218,15 +213,38 @@ function operate(a, b, operator) {
             return multiply(a, b);
             break;
         case '/':
-            return add(a, b);
+            return divide(a, b);
             break;
     }
 }
 
-function isNumeric(value) {
-    return !isNaN(value);
+function addToNumbers(...num) {
+    if (num.length != 0)
+        numbers.push(num[0]);
+    else if (number.length != 0) {
+        numbers.push(parseFloat(number.pop()));
+    }
 }
 
-function isInt(n) {
-    return n % 1 === 0;
+function handleFloat() {
+    if (floatFlag) {
+        dotBtn.disabled = true;
+        return;
+    }
+    floatFlag = true;
+}
+
+function floatFlagOff() {
+    dotBtn.disabled = false;
+    floatFlag = false;
+}
+
+function isNumeric(num) {
+    return !isNaN(num);
+}
+
+
+function removeLastDigit(num) {
+    let strNum = num.toString();
+    return parseFloat(strNum.substring(0, strNum.length - 1));
 }
