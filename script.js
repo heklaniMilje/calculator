@@ -1,4 +1,4 @@
-const themeDiv = document.querySelector('.theme');
+const themeLabel = document.querySelector('.theme label');
 const themeChkBox = document.querySelector('input[type=checkbox]');
 const body = document.querySelector('body');
 const calculator = document.querySelector('.calculator');
@@ -12,7 +12,6 @@ const delBtn = document.querySelector('.delete-one');
 
 let numbers = [];
 let operands = [];
-let isNumberLast = false;
 let number = [];
 let result = 0;
 
@@ -27,30 +26,52 @@ themeCheck();
 
 function themeCheck() {
     if (JSON.parse(localStorage.getItem('dark')).isDark) {
-        //TODO: theme button - remove transition animation when refreshing 
         themeChkBox.checked = true;
         themeChange();
     }
 }
 
 window.onload = () => {
-    themeDiv.classList.add('loaded');
-    setInterval(function(){themeDiv.classList.remove('loaded');},500);
+    themeLabel.classList.add('loaded');
+    setInterval(function () {
+        themeLabel.classList.remove('loaded');
+        themeLabel.classList.add('unloaded');
+    }, 500);
 }
 
 function deleteOne(e) {
 
-    console.log(isNumberLast, numbers, operands);
+    const text = display.textContent;
+    if(text == "")  return;
 
-    if (isNumberLast) {
-        if (numbers.length == 0) return;
-        numbers.pop();
+    if(number.length!=0)
+        numbers.push(number.pop());
+    
+
+    const last = text.substr(-1);
+    console.log('last' + last);
+ 
+    if (isNumeric(last)) {
+        let num = numbers.pop();
+        console.log('num: ' + num);
+
+        if (isInt(num)) {
+            if (Math.floor(num/10) != 0) {
+                num = Math.floor(num/10);
+                numbers.push(num);
+            }
+        }
+        else{
+            let decimals = num % 1;
+            decimals = Math.floor(decimals/10);
+            numbers.push(num%1 + decimals);
+        }
     }
-    else {
-        if (operands.length == 0) return;
+    else if(!/[\s]/.test(last)){
         operands.pop();
     }
 
+    console.log('numbers: ' + numbers);
     displayDeleteOne();
 }
 
@@ -82,7 +103,6 @@ function input(e) {
         if (Array.from(e.target.classList).some(el => el == 'calculate')) {
             if (number.length != 0) {
                 numbers.push(number.pop());
-                isNumberLast = true;
             }
             displayClear();
             displayShow(calculate());
@@ -93,11 +113,9 @@ function input(e) {
         displayShow(" " + inputValue + " ");
         if (number.length != 0) {
             numbers.push(number.pop());
-            isNumberLast = true;
         }
 
         operands.push(inputValue);
-        isNumberLast = false;
 
     }
     else {
@@ -122,8 +140,9 @@ function calculate() {
         switch (op) {
             case '*':
             case '/':
-                if (numbers[1] == 0)
+                if (numbers[1] == 0) {
                     displayShow("ERROR zero division");
+                }
                 tmp = operate(numbers.shift(), numbers.shift(), op);
                 numbers.unshift(tmp);
                 break
@@ -164,7 +183,7 @@ function displayShow(value) {
 
 function displayDeleteOne() {
     const text = display.textContent;
-    const newText = text.substring(0, text.length - 1);
+    const newText = text.substring(0, text.length - 1).trim();
     console.log(newText)
     displayClear();
     displayShow(newText);
@@ -202,4 +221,12 @@ function operate(a, b, operator) {
             return add(a, b);
             break;
     }
+}
+
+function isNumeric(value) {
+    return !isNaN(value);
+}
+
+function isInt(n) {
+    return n % 1 === 0;
 }

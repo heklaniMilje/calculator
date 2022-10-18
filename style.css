@@ -13,7 +13,7 @@
     --display-color-light: white;
     --display-color-dark: rgb(19, 34, 48);
     --display-text-color-light: rgb(110, 110, 110);
-    --display-text-color-dark: rgb(243, 191, 21);
+    --display-text-color-dark: rgb(248, 208, 74);
     --text-color-light: white;
     --text-color-dark: rgb(222, 222, 241);
     --button-color-light: rgb(172, 168, 172);
@@ -107,8 +107,14 @@ input:checked + label:after{
     background: rgb(62, 63, 104);
 }
 
-label, label:after {
+
+
+label.unloaded, label:after {
     transition: 0.3s;
+}
+
+label.loaded, label:after {
+    transition: none;
 }
 
 label:active:after {
@@ -195,6 +201,7 @@ svg.moon > * {
     gap: 5px;
 }
 
+
 .button {
     flex: 1;
     font-size: 16px;
@@ -204,6 +211,11 @@ svg.moon > * {
     color: var(--text-color-light);
     background: var(--button-color-light);
 }
+
+.button.calculate {
+    flex: 4;
+}
+
 
 .button.dark {
     background: var(--button-color-dark);
