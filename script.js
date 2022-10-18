@@ -1,3 +1,4 @@
+const themeDiv = document.querySelector('.theme');
 const themeChkBox = document.querySelector('input[type=checkbox]');
 const body = document.querySelector('body');
 const calculator = document.querySelector('.calculator');
@@ -23,12 +24,18 @@ themeChkBox.addEventListener('click', themeChange);
 
 themeCheck();
 
+
 function themeCheck() {
     if (JSON.parse(localStorage.getItem('dark')).isDark) {
         //TODO: theme button - remove transition animation when refreshing 
         themeChkBox.checked = true;
         themeChange();
     }
+}
+
+window.onload = () => {
+    themeDiv.classList.add('loaded');
+    setInterval(function(){themeDiv.classList.remove('loaded');},500);
 }
 
 function deleteOne(e) {
