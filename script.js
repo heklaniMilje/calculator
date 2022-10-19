@@ -14,21 +14,35 @@ const dotBtn = document.querySelector('.dot');
 const calculateBtn = document.querySelector('.calculate');
 
 let numbers = [];
-let operands = [];
+let operators = [];
 let number = [];
 let result = 0;
-let floatFlag = false;
+let keyInputFlag = false;
 
-
+window.addEventListener('keyup', keyInput);
 
 themeChkBox.addEventListener('click', themeChange);
 window.addEventListener('load', handleThemeOnLoad);
 
-numBtns.forEach(btn => btn.addEventListener('click', input));
-opBtns.forEach(btn => btn.addEventListener('click', inputOperations));
+numBtns.forEach(btn => btn.addEventListener('click', inputNumber));
+opBtns.forEach(btn => btn.addEventListener('click', inputOperators));
 acBtn.addEventListener('click', resetData);
 delBtn.addEventListener('click', deleteOne);
 calculateBtn.addEventListener('click', calculation);
+
+function keyInput(e) {
+
+    if(e.keyCode == 13){
+        calculation();
+        return;
+    }
+
+    keyInputFlag = true;
+    if (/[0-9\.]/.test(e.key))
+        inputNumber(e.key);
+    else if(/[\+\-\*\/]/.test(e.key))
+        inputOperators(e.key);
+}
 
 function handleThemeOnLoad() {
     themeLabel.classList.add('loaded');
@@ -61,14 +75,13 @@ function deleteOne(e) {
 
     if (isNumeric(last)) {
         let num = numbers.pop();
-        console.log('Number: ' + num);
 
         num = removeLastDigit(num);
         if (!isNaN(num))
             addToNumbers(num);
     }
     else if (/[\+\-\*\/]/.test(last)) {
-        operands.pop();
+        operators.pop();
     }
 
     displayDeleteOne();
@@ -95,27 +108,31 @@ function themeChange(e) {
 
 function calculation() {
     // add last written number when = pressed
+    floatFlagOff();
     addToNumbers();
     displayClear();
     displayShow(calculate());
     addToNumbers(result);
 }
 
-function inputOperations(e) {
-    const op = e.target.textContent;
-    displayShow(" " + op + " ");
+function inputOperators(e) {
+    let inputValue = keyInputFlag ? e : e.target.textContent;
+    keyInputFlag = false;
+    displayShow(" " + inputValue + " ");
 
     // add last written number when +-*/ pressed
     addToNumbers();
-    operands.push(op);
+    operators.push(inputValue);
 }
 
-function input(e) {
-    const inputValue = e.target.textContent;
+function inputNumber(e) {
+    let inputValue = keyInputFlag ? e : e.target.textContent;
+    keyInputFlag = false;
+
     displayShow(inputValue);
 
     if (inputValue == '.')
-        handleFloat();
+        inputValue = handleFloat();
     number.length == 0 ? number.push(inputValue)
         : number.push(number.pop() + inputValue);
 
@@ -130,7 +147,7 @@ function calculate() {
     let tmp = 0;
 
     while (numbers.length != 1) {
-        let op = operands.shift();
+        let op = operators.shift();
         switch (op) {
             case '*':
             case '/':
@@ -139,13 +156,11 @@ function calculate() {
                 break;
             case '+':
             case '-':
-                if (operands.length == 0 || operands[0] == '+' || operands[0] == '-') {
-                    console.log('orvo')
+                if (operators.length == 0 || operators[0] == '+' || operators[0] == '-') {
                     tmp = operate(numbers.shift(), numbers.shift(), op);
                     numbers.unshift(tmp);
                 }
                 else {
-                    console.log(numbers[0], op)
                     tmp = operate(numbers.shift(), calculate(), op);
                     numbers.unshift(tmp);
                 }
@@ -159,7 +174,7 @@ function calculate() {
 
 function resetData() {
     numbers = [];
-    operands = [];
+    operators = [];
     displayClear();
 }
 
@@ -174,7 +189,6 @@ function displayShow(value) {
 function displayDeleteOne() {
     const text = display.textContent;
     const newText = text.substring(0, text.length - 1).trim();
-    console.log(newText);
     displayClear();
     displayShow(newText);
 }
@@ -219,6 +233,7 @@ function operate(a, b, operator) {
 }
 
 function addToNumbers(...num) {
+    floatFlagOff();
     if (num.length != 0)
         numbers.push(num[0]);
     else if (number.length != 0) {
@@ -227,11 +242,14 @@ function addToNumbers(...num) {
 }
 
 function handleFloat() {
-    if (floatFlag) {
-        dotBtn.disabled = true;
-        return;
-    }
     floatFlag = true;
+    dotBtn.disabled = true;
+
+    if (number.length != 0 && /[\.]/.test(number.toString())){
+        console.log(number);
+        return;}
+    else
+        return '.';
 }
 
 function floatFlagOff() {
