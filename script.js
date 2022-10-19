@@ -18,11 +18,17 @@ let operators = [];
 let number = [];
 let result = 0;
 let keyInputFlag = false;
+const themableElements = [body, themeLabel, calculator, display, buttons, footer];
+
+const storedTheme = JSON.parse(localStorage.getItem('darkTheme'));
+let darkMode = storedTheme != null ? storedTheme.isDark : false;
+console.log(darkMode)
+refreshTheme();
 
 window.addEventListener('keyup', keyInput);
 
 themeChkBox.addEventListener('click', themeChange);
-window.addEventListener('load', handleThemeOnLoad);
+// window.addEventListener('load', handleThemeOnLoad);
 
 numBtns.forEach(btn => btn.addEventListener('click', inputNumber));
 opBtns.forEach(btn => btn.addEventListener('click', inputOperators));
@@ -30,37 +36,66 @@ acBtn.addEventListener('click', resetData);
 delBtn.addEventListener('click', deleteOne);
 calculateBtn.addEventListener('click', calculation);
 
-function keyInput(e) {
 
-    if(e.keyCode == 13){
+function refreshTheme(){
+    if(darkMode){
+        themeChkBox.checked = true;
+        loadTheme();}
+}
+
+function loadTheme() {
+        themableElements.forEach(el => {
+            if (Array.isArray(el))
+                el.forEach(btn => btn.classList.toggle('dark'));
+            else
+                el.classList.toggle('dark');
+        });
+    
+}
+
+function themeChange(e) {
+    darkMode = !darkMode;
+    let theme = { isDark: darkMode };
+    localStorage.setItem('darkTheme', JSON.stringify(theme));
+    loadTheme();
+}
+
+function keyInput(e) {
+    if (e.keyCode == 13) {
         calculation();
+        return;
+    }
+    else if(e.keyCode == 8){
+        deleteOne();
         return;
     }
 
     keyInputFlag = true;
     if (/[0-9\.]/.test(e.key))
         inputNumber(e.key);
-    else if(/[\+\-\*\/]/.test(e.key))
+    else if (/[\+\-\*\/]/.test(e.key))
         inputOperators(e.key);
 }
 
-function handleThemeOnLoad() {
-    themeLabel.classList.add('loaded');
-    setInterval(function () {
-        themeLabel.classList.remove('loaded');
-        themeLabel.classList.add('unloaded');
-    }, 500);
-}
+// function handleThemeOnLoad() {
+//     themeLabel.classList.add('loaded');
+//     setInterval(function () {
+//         themeLabel.classList.remove('loaded');
+//         themeLabel.classList.add('unloaded');
+//     }, 500);
+// }
 
-themeCheck();
+// themeCheck();
 
 
-function themeCheck() {
-    if (JSON.parse(localStorage.getItem('dark')).isDark) {
-        themeChkBox.checked = true;
-        themeChange();
-    }
-}
+// function themeCheck() {
+//     if(currentTheme === null)
+//         return;
+//     else if (currentTheme.isDark) {
+//         themeChkBox.checked = true;
+//         themeChange();
+//     }
+// }
 
 
 function deleteOne(e) {
@@ -85,25 +120,6 @@ function deleteOne(e) {
     }
 
     displayDeleteOne();
-}
-
-function themeChange(e) {
-    body.classList.toggle('dark');
-    calculator.classList.toggle('dark');
-    display.classList.toggle('dark');
-    buttons.forEach(btn => btn.classList.toggle('dark'));
-    footer.classList.toggle('dark');
-
-
-    if (Array.from(body.classList).some(el => el == 'dark')) {
-        const dark = { isDark: true };
-        localStorage.setItem('dark', JSON.stringify(dark));
-    }
-    else {
-        const dark = JSON.parse(localStorage.getItem('dark'));
-        dark.isDark = false;
-        localStorage.setItem('dark', JSON.stringify(dark));
-    }
 }
 
 function calculation() {
@@ -245,9 +261,10 @@ function handleFloat() {
     floatFlag = true;
     dotBtn.disabled = true;
 
-    if (number.length != 0 && /[\.]/.test(number.toString())){
+    if (number.length != 0 && /[\.]/.test(number.toString())) {
         console.log(number);
-        return;}
+        return;
+    }
     else
         return '.';
 }

@@ -109,11 +109,11 @@ input:checked + label:after{
 
 
 
-label.unloaded, label:after {
+label, label:after {
     transition: 0.3s;
 }
 
-label.loaded, label:after {
+label.dark, label:after {
     transition: none;
 }
 
